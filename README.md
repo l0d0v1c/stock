@@ -1,3 +1,4 @@
+![](example.jpeg)
 # Scanner d'actions (Yahoo Finance via RapidAPI)
 
 Cette application est une page HTML autonome qui permet de :
