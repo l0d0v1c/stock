@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <title>Scanner d'actions</title>
+  <style>
+    /* Reset de base */
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+      background: #f4f7f9;
+      color: #333;
+      margin: 20px;
+      line-height: 1.4;
+    }
+
+    h1, h2 {
+      margin-bottom: 10px;
+    }
+
+    /* Conteneur principal pour centrer le contenu */
+    .container {
+      max-width: 700px;
+      margin: 0 auto;
+      background: #fff;
+      border-radius: 6px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      padding: 20px;
+    }
+
+    .apiKey-section, .codes-section, .results-section {
+      margin-bottom: 20px;
+    }
+
+    /* Label + input de la clé API */
+    .apiKey-section label {
+      display: inline-block;
+      margin-right: 10px;
+      font-weight: bold;
+    }
+
+    #apiKey {
+      padding: 8px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      width: 250px;
+    }
+
+    /* Gestion des champs codes */
+    .codes-section {
+      background: #f8f9fc;
+      border: 1px solid #e0e0e0;
+      padding: 15px;
+      border-radius: 6px;
+    }
+
+    .codes-section h2 {
+      margin-bottom: 10px;
+    }
+
+    #codesContainer {
+      margin-bottom: 10px;
+    }
+
+    .code-field {
+      display: flex;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+
+    .code-field input {
+      padding: 8px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      width: 220px;
+      margin-right: 5px;
+      transition: border-color 0.2s;
+    }
+
+    .code-field input:focus {
+      border-color: #007BFF;
+      outline: none;
+    }
+
+    .code-field button {
+      background: #dc3545;
+      color: #fff;
+      border: none;
+      border-radius: 4px;
+      padding: 8px 10px;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .code-field button:hover {
+      background: #c82333;
+    }
+
+    /* Boutons généraux */
+    button {
+      font-size: 14px;
+      font-weight: 600;
+      border: none;
+      border-radius: 4px;
+      padding: 8px 12px;
+      cursor: pointer;
+    }
+
+    #addCodeBtn {
+      background: #28a745;
+      color: #fff;
+      margin-top: 5px;
+      transition: background 0.2s;
+    }
+    #addCodeBtn:hover {
+      background: #218838;
+    }
+
+    #scanBtn {
+      background: #007bff;
+      color: #fff;
+      transition: background 0.2s;
+      margin-bottom: 10px;
+    }
+    #scanBtn:hover {
+      background: #0056b3;
+    }
+
+    /* Résultats */
+    .results-section h2 {
+      margin-bottom: 10px;
+    }
+
+    .results-section table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+    }
+
+    .results-section th, .results-section td {
+      border: 1px solid #ddd;
+      padding: 10px;
+      text-align: left;
+    }
+
+    .results-section th {
+      background: #f1f3f5;
+      font-weight: 600;
+    }
+
+    .results-section tr:nth-child(even) td {
+      background: #fafbfc;
+    }
+
+    /* Messages d'erreur ou de statut */
+    .error-message {
+      color: #dc3545;
+      font-weight: bold;
+      margin-top: 10px;
+    }
+
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Scanner d'actions</h1>
+
+    <!-- Section pour la clé API -->
+    <div class="apiKey-section">
+      <label for="apiKey">Clé API (x-rapidapi-key) :</label><br/>
+      <input type="text" id="apiKey" placeholder="Entrez votre clé RapidAPI" />
+      <br/><small>Obtenez votre clé sur rapidAPI.com service YH Fnance</small>
+    </div>
+
+    <!-- Section pour les codes -->
+    <div class="codes-section">
+      <h2>Codes d'actions</h2>
+      <div id="codesContainer">
+        <!-- Les champs code s'ajoutent ici dynamiquement -->
+      </div>
+      <button id="addCodeBtn">+ Ajouter un code</button>
+    </div>
+
+    <!-- Bouton pour lancer le scan -->
+    <button id="scanBtn">Scan</button>
+
+    <!-- Section pour afficher les résultats -->
+    <div class="results-section">
+      <h2>Résultats</h2>
+      <div id="results"></div>
+    </div>
+  </div>
+
+  <script>
+    // Récupération des éléments
+    const apiKeyInput = document.getElementById('apiKey');
+    const codesContainer = document.getElementById('codesContainer');
+    const addCodeBtn = document.getElementById('addCodeBtn');
+    const scanBtn = document.getElementById('scanBtn');
+    const resultsDiv = document.getElementById('results');
+
+    // Charge les valeurs sauvegardées (clés + codes) depuis localStorage au démarrage
+    function loadSavedData() {
+      const savedApiKey = localStorage.getItem('apiKey') || '';
+      apiKeyInput.value = savedApiKey;
+
+      const savedCodes = JSON.parse(localStorage.getItem('stockCodes') || '[]');
+      if (savedCodes.length > 0) {
+        savedCodes.forEach(code => {
+          addCodeField(code);
+        });
+      } else {
+        addCodeField(''); // Si pas de codes, on en crée un vide
+      }
+    }
+
+    // Sauvegarde les valeurs (clés + codes) dans localStorage
+    function saveData() {
+      localStorage.setItem('apiKey', apiKeyInput.value);
+
+      const allCodeInputs = document.querySelectorAll('.code-input');
+      const codes = Array.from(allCodeInputs).map(input => input.value.trim()).filter(v => v !== '');
+      localStorage.setItem('stockCodes', JSON.stringify(codes));
+    }
+
+    // Crée un champ de saisie pour un code
+    function addCodeField(defaultValue = '') {
+      const div = document.createElement('div');
+      div.className = 'code-field';
+
+      const input = document.createElement('input');
+      input.type = 'text';
+      input.className = 'code-input';
+      input.placeholder = 'Ex: SGO.PA ou EPA:SGO';
+      input.value = defaultValue;
+
+      const removeBtn = document.createElement('button');
+      removeBtn.textContent = '–';
+      removeBtn.addEventListener('click', () => {
+        div.remove();
+        saveData(); // MàJ du localStorage
+      });
+
+      div.appendChild(input);
+      div.appendChild(removeBtn);
+      codesContainer.appendChild(div);
+
+      // Mise à jour du localStorage quand on modifie la valeur
+      input.addEventListener('change', saveData);
+      input.addEventListener('keyup', saveData);
+    }
+
+    // Ajout d'un nouveau champ code via le bouton "+"
+    addCodeBtn.addEventListener('click', () => {
+      addCodeField();
+    });
+
+    // Conversion simple : "EPA:SGO" => "SGO.PA"
+    function convertTickerForYahoo(ticker) {
+      if (ticker.startsWith('EPA:')) {
+        return ticker.substring(4) + '.PA';
+      }
+      return ticker;
+    }
+
+    // Lance la requête vers l'API
+    async function scanStocks() {
+      // Nettoyage de l'affichage
+      resultsDiv.innerHTML = '';
+
+      // Récupère la clé API et la liste des codes
+      const key = apiKeyInput.value.trim();
+      if (!key) {
+        showError("Veuillez saisir une clé API.");
+        return;
+      }
+      const allCodeInputs = document.querySelectorAll('.code-input');
+      let codes = Array.from(allCodeInputs)
+        .map(input => input.value.trim())
+        .filter(v => v !== '');
+
+      if (codes.length === 0) {
+        showError("Veuillez saisir au moins un code d'action.");
+        return;
+      }
+
+      // Sauvegarde dans le localStorage
+      saveData();
+
+      // Convertit "EPA:XXX" en "XXX.PA" si besoin
+      codes = codes.map(ticker => convertTickerForYahoo(ticker));
+
+      // Construction de la requête
+      const tickerParam = encodeURIComponent(codes.join(','));
+      const url = `https://yahoo-finance15.p.rapidapi.com/api/v1/markets/stock/quotes?ticker=${tickerParam}`;
+
+      try {
+        const response = await fetch(url, {
+          method: 'GET',
+          headers: {
+            'x-rapidapi-key': key,
+            'x-rapidapi-host': 'yahoo-finance15.p.rapidapi.com'
+          }
+        });
+
+        if (!response.ok) {
+          throw new Error(`Erreur HTTP: ${response.status}`);
+        }
+
+        const data = await response.json();
+        if (!data.body || !Array.isArray(data.body)) {
+          showError('Résultat inattendu de l’API.');
+          return;
+        }
+
+        // On affiche les résultats dans un tableau
+        const table = document.createElement('table');
+        const thead = document.createElement('thead');
+        const headerRow = document.createElement('tr');
+
+        const thCode = document.createElement('th');
+        thCode.textContent = 'Code';
+        const thPrice = document.createElement('th');
+        thPrice.textContent = 'Cours (regularMarketPrice)';
+        const thRating = document.createElement('th');
+        thRating.textContent = 'Note moyenne analystes';
+
+        headerRow.appendChild(thCode);
+        headerRow.appendChild(thPrice);
+        headerRow.appendChild(thRating);
+        thead.appendChild(headerRow);
+        table.appendChild(thead);
+
+        const tbody = document.createElement('tbody');
+        data.body.forEach(item => {
+          const row = document.createElement('tr');
+
+          const cellCode = document.createElement('td');
+          cellCode.textContent = item.symbol || '';
+
+          const cellPrice = document.createElement('td');
+          cellPrice.textContent =
+            (item.regularMarketPrice != null) ? item.regularMarketPrice : 'N/A';
+
+          const cellRating = document.createElement('td');
+          cellRating.textContent = item.averageAnalystRating || 'N/A';
+
+          row.appendChild(cellCode);
+          row.appendChild(cellPrice);
+          row.appendChild(cellRating);
+          tbody.appendChild(row);
+        });
+
+        table.appendChild(tbody);
+        resultsDiv.appendChild(table);
+
+      } catch (error) {
+        console.error(error);
+        showError(`Erreur: ${error.message}`);
+      }
+    }
+
+    // Fonction utilitaire pour afficher un message d'erreur
+    function showError(message) {
+      resultsDiv.innerHTML = `<div class="error-message">${message}</div>`;
+    }
+
+    // Écouteur du bouton Scan
+    scanBtn.addEventListener('click', scanStocks);
+
+    // Au chargement de la page, on restaure les données
+    window.addEventListener('DOMContentLoaded', loadSavedData);
+  </script>
+</body>
+</html>
