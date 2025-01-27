@@ -2,119 +2,119 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8" />
-  <title>Scanner d'actions</title>
+  <title>Scanner d'actions - iPhone</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
   <style>
-    /* Reset de base */
+    /* Reset et styles de base */
     * {
       box-sizing: border-box;
       margin: 0;
       padding: 0;
     }
-
     body {
-      font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
-      background: #f4f7f9;
+      font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, sans-serif;
+      background-color: #f4f7f9;
       color: #333;
-      margin: 20px;
+      margin: 0;
       line-height: 1.4;
     }
-
-    h1, h2 {
-      margin-bottom: 10px;
-    }
-
-    /* Conteneur principal pour centrer le contenu */
     .container {
-      max-width: 700px;
+      max-width: 600px; /* Largeur max, centrée si plus large que l'écran */
       margin: 0 auto;
+      padding: 16px;
       background: #fff;
-      border-radius: 6px;
-      box-shadow: 0 0 10px rgba(0,0,0,0.1);
-      padding: 20px;
+      min-height: 100vh; /* Pour occuper tout l'écran sur iPhone */
     }
 
-    .apiKey-section, .codes-section, .results-section {
+    h1 {
+      margin-bottom: 10px;
+      font-size: 1.6em;
+    }
+    h2 {
+      margin-bottom: 8px;
+      font-size: 1.2em;
+    }
+
+    /* Section clé API */
+    .apiKey-section {
       margin-bottom: 20px;
     }
-
-    /* Label + input de la clé API */
     .apiKey-section label {
       display: inline-block;
-      margin-right: 10px;
-      font-weight: bold;
+      margin-bottom: 6px;
+      font-weight: 600;
     }
-
+    .apiKey-note {
+      font-size: 0.85em;
+      color: #555;
+      margin-top: 4px;
+    }
     #apiKey {
-      padding: 8px;
+      display: block;
+      width: 100%;
+      max-width: 400px;
+      padding: 10px;
+      margin-bottom: 4px;
       border: 1px solid #ccc;
       border-radius: 4px;
-      width: 250px;
     }
 
-    /* Gestion des champs codes */
+    /* Codes section */
     .codes-section {
       background: #f8f9fc;
       border: 1px solid #e0e0e0;
-      padding: 15px;
+      padding: 10px 12px;
       border-radius: 6px;
+      margin-bottom: 20px;
     }
-
     .codes-section h2 {
-      margin-bottom: 10px;
+      margin-bottom: 8px;
     }
-
     #codesContainer {
       margin-bottom: 10px;
     }
-
     .code-field {
       display: flex;
       align-items: center;
       margin-bottom: 8px;
     }
-
     .code-field input {
+      flex: 1;
       padding: 8px;
       border: 1px solid #ccc;
       border-radius: 4px;
-      width: 220px;
-      margin-right: 5px;
+      margin-right: 8px;
       transition: border-color 0.2s;
     }
-
     .code-field input:focus {
       border-color: #007BFF;
       outline: none;
     }
-
     .code-field button {
       background: #dc3545;
       color: #fff;
       border: none;
       border-radius: 4px;
-      padding: 8px 10px;
+      padding: 8px;
       cursor: pointer;
       transition: background 0.2s;
     }
-
     .code-field button:hover {
       background: #c82333;
     }
 
-    /* Boutons généraux */
+    /* Boutons principaux */
     button {
       font-size: 14px;
       font-weight: 600;
       border: none;
       border-radius: 4px;
-      padding: 8px 12px;
+      padding: 10px 14px;
       cursor: pointer;
     }
-
     #addCodeBtn {
       background: #28a745;
       color: #fff;
-      margin-top: 5px;
       transition: background 0.2s;
     }
     #addCodeBtn:hover {
@@ -125,7 +125,11 @@
       background: #007bff;
       color: #fff;
       transition: background 0.2s;
-      margin-bottom: 10px;
+      width: 100%;
+      max-width: 400px;
+      display: block;
+      margin: 0 auto 20px auto;
+      text-align: center;
     }
     #scanBtn:hover {
       background: #0056b3;
@@ -133,63 +137,72 @@
 
     /* Résultats */
     .results-section h2 {
-      margin-bottom: 10px;
+      margin-bottom: 8px;
     }
-
     .results-section table {
       width: 100%;
       border-collapse: collapse;
       margin-top: 10px;
     }
-
     .results-section th, .results-section td {
       border: 1px solid #ddd;
-      padding: 10px;
+      padding: 8px;
       text-align: left;
+      font-size: 0.95em;
     }
-
     .results-section th {
       background: #f1f3f5;
       font-weight: 600;
     }
-
     .results-section tr:nth-child(even) td {
       background: #fafbfc;
     }
-
-    /* Messages d'erreur ou de statut */
     .error-message {
       color: #dc3545;
-      font-weight: bold;
+      font-weight: 600;
       margin-top: 10px;
+      text-align: center;
     }
 
+    /* Responsive : ajustements si la largeur d'écran est très petite */
+    @media (max-width: 480px) {
+      .container {
+        padding: 12px;
+      }
+      #scanBtn {
+        font-size: 16px;
+      }
+      .code-field input {
+        font-size: 14px;
+      }
+    }
   </style>
 </head>
+
 <body>
   <div class="container">
     <h1>Scanner d'actions</h1>
 
-    <!-- Section pour la clé API -->
+    <!-- Clé API -->
     <div class="apiKey-section">
-      <label for="apiKey">Clé API (x-rapidapi-key) :</label><br/>
-      <input type="text" id="apiKey" placeholder="Entrez votre clé RapidAPI" />
-      <br/><small>Obtenez votre clé sur rapidAPI.com service YH Fnance</small>
+      <label for="apiKey">Clé API (x-rapidapi-key) :</label>
+      <input type="text" id="apiKey" placeholder="Entrez votre clé RapidAPI">
+      <div class="apiKey-note">
+        <em>Pour obtenir cette clé, rendez-vous sur <strong>rapidapi.com</strong> et recherchez «YH Finance». Choisissez un abonnement, puis copiez votre clé API.</em>
+      </div>
     </div>
 
-    <!-- Section pour les codes -->
+    <!-- Liste dynamique de codes -->
     <div class="codes-section">
       <h2>Codes d'actions</h2>
-      <div id="codesContainer">
-        <!-- Les champs code s'ajoutent ici dynamiquement -->
-      </div>
+      <div id="codesContainer"></div>
       <button id="addCodeBtn">+ Ajouter un code</button>
     </div>
 
-    <!-- Bouton pour lancer le scan -->
+    <!-- Bouton scan -->
     <button id="scanBtn">Scan</button>
 
-    <!-- Section pour afficher les résultats -->
+    <!-- Affichage des résultats -->
     <div class="results-section">
       <h2>Résultats</h2>
       <div id="results"></div>
@@ -197,38 +210,38 @@
   </div>
 
   <script>
-    // Récupération des éléments
+    // 1) Récupération des éléments du DOM
     const apiKeyInput = document.getElementById('apiKey');
     const codesContainer = document.getElementById('codesContainer');
     const addCodeBtn = document.getElementById('addCodeBtn');
     const scanBtn = document.getElementById('scanBtn');
     const resultsDiv = document.getElementById('results');
 
-    // Charge les valeurs sauvegardées (clés + codes) depuis localStorage au démarrage
+    // 2) Fonction pour charger les données depuis localStorage
     function loadSavedData() {
       const savedApiKey = localStorage.getItem('apiKey') || '';
       apiKeyInput.value = savedApiKey;
 
       const savedCodes = JSON.parse(localStorage.getItem('stockCodes') || '[]');
       if (savedCodes.length > 0) {
-        savedCodes.forEach(code => {
-          addCodeField(code);
-        });
+        savedCodes.forEach(code => addCodeField(code));
       } else {
-        addCodeField(''); // Si pas de codes, on en crée un vide
+        addCodeField(''); // Si aucun code, on en ajoute un vide
       }
     }
 
-    // Sauvegarde les valeurs (clés + codes) dans localStorage
+    // 3) Fonction pour sauvegarder dans localStorage
     function saveData() {
       localStorage.setItem('apiKey', apiKeyInput.value);
 
       const allCodeInputs = document.querySelectorAll('.code-input');
-      const codes = Array.from(allCodeInputs).map(input => input.value.trim()).filter(v => v !== '');
+      const codes = Array.from(allCodeInputs)
+        .map(input => input.value.trim())
+        .filter(v => v !== '');
       localStorage.setItem('stockCodes', JSON.stringify(codes));
     }
 
-    // Crée un champ de saisie pour un code
+    // 4) Fonction pour créer un champ code
     function addCodeField(defaultValue = '') {
       const div = document.createElement('div');
       div.className = 'code-field';
@@ -243,24 +256,22 @@
       removeBtn.textContent = '–';
       removeBtn.addEventListener('click', () => {
         div.remove();
-        saveData(); // MàJ du localStorage
+        saveData();
       });
 
       div.appendChild(input);
       div.appendChild(removeBtn);
       codesContainer.appendChild(div);
 
-      // Mise à jour du localStorage quand on modifie la valeur
+      // Sauvegarde au changement
       input.addEventListener('change', saveData);
       input.addEventListener('keyup', saveData);
     }
 
-    // Ajout d'un nouveau champ code via le bouton "+"
-    addCodeBtn.addEventListener('click', () => {
-      addCodeField();
-    });
+    // 5) Bouton + pour ajouter un champ
+    addCodeBtn.addEventListener('click', () => addCodeField());
 
-    // Conversion simple : "EPA:SGO" => "SGO.PA"
+    // 6) Conversion « EPA:SGO » => « SGO.PA »
     function convertTickerForYahoo(ticker) {
       if (ticker.startsWith('EPA:')) {
         return ticker.substring(4) + '.PA';
@@ -268,17 +279,18 @@
       return ticker;
     }
 
-    // Lance la requête vers l'API
+    // 7) Fonction principale pour scanner
     async function scanStocks() {
-      // Nettoyage de l'affichage
       resultsDiv.innerHTML = '';
 
-      // Récupère la clé API et la liste des codes
+      // Récupère la clé API
       const key = apiKeyInput.value.trim();
       if (!key) {
         showError("Veuillez saisir une clé API.");
         return;
       }
+
+      // Récupère les codes saisis
       const allCodeInputs = document.querySelectorAll('.code-input');
       let codes = Array.from(allCodeInputs)
         .map(input => input.value.trim())
@@ -289,13 +301,13 @@
         return;
       }
 
-      // Sauvegarde dans le localStorage
+      // Sauvegarde
       saveData();
 
-      // Convertit "EPA:XXX" en "XXX.PA" si besoin
-      codes = codes.map(ticker => convertTickerForYahoo(ticker));
+      // Convertit EPA:xxx en xxx.PA si besoin
+      codes = codes.map(t => convertTickerForYahoo(t));
 
-      // Construction de la requête
+      // Construit la requête
       const tickerParam = encodeURIComponent(codes.join(','));
       const url = `https://yahoo-finance15.p.rapidapi.com/api/v1/markets/stock/quotes?ticker=${tickerParam}`;
 
@@ -314,11 +326,11 @@
 
         const data = await response.json();
         if (!data.body || !Array.isArray(data.body)) {
-          showError('Résultat inattendu de l’API.');
+          showError("Résultat inattendu de l’API.");
           return;
         }
 
-        // On affiche les résultats dans un tableau
+        // Affiche les résultats dans un tableau
         const table = document.createElement('table');
         const thead = document.createElement('thead');
         const headerRow = document.createElement('tr');
@@ -326,9 +338,9 @@
         const thCode = document.createElement('th');
         thCode.textContent = 'Code';
         const thPrice = document.createElement('th');
-        thPrice.textContent = 'Cours (regularMarketPrice)';
+        thPrice.textContent = 'Cours';
         const thRating = document.createElement('th');
-        thRating.textContent = 'Note moyenne analystes';
+        thRating.textContent = 'Note analystes';
 
         headerRow.appendChild(thCode);
         headerRow.appendChild(thPrice);
@@ -344,8 +356,9 @@
           cellCode.textContent = item.symbol || '';
 
           const cellPrice = document.createElement('td');
-          cellPrice.textContent =
-            (item.regularMarketPrice != null) ? item.regularMarketPrice : 'N/A';
+          cellPrice.textContent = (item.regularMarketPrice != null)
+            ? item.regularMarketPrice
+            : 'N/A';
 
           const cellRating = document.createElement('td');
           cellRating.textContent = item.averageAnalystRating || 'N/A';
@@ -365,15 +378,15 @@
       }
     }
 
-    // Fonction utilitaire pour afficher un message d'erreur
-    function showError(message) {
-      resultsDiv.innerHTML = `<div class="error-message">${message}</div>`;
+    // 8) Affiche un message d'erreur
+    function showError(msg) {
+      resultsDiv.innerHTML = `<div class="error-message">${msg}</div>`;
     }
 
-    // Écouteur du bouton Scan
+    // 9) Écouteur pour lancer le scan
     scanBtn.addEventListener('click', scanStocks);
 
-    // Au chargement de la page, on restaure les données
+    // 10) Restaure les données au chargement
     window.addEventListener('DOMContentLoaded', loadSavedData);
   </script>
 </body>
