@@ -1,4 +1,11 @@
 ![](example.jpeg)
+
+# Démo
+
+[Accéder ICI à la démo](https://l0d0v1c.github.io/stock/)
+
+Cette démo est ajoutable à l'écran de veille de l'iPhone 
+
 # Scanner d'actions (Yahoo Finance via RapidAPI)
 
 Cette application est une page HTML autonome qui permet de :
